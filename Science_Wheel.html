@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Digital Wheel of Knowledge - Early Sciences and Intellectual Revolutions">
+<title>Wheel of Knowledge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07090d; --text:#f4f0e8; --muted:#a9adb5;
+  --c1:#e4b84c; --c2:#75c990; --c3:#55a8d9; --c4:#8974d6;
+  --c5:#e88484; --c6:#49c4c7; --c7:#e9964c; --c8:#9a7ce0;
+  --wheel-size: min(700px, 88vmin);
+  --radius: calc(var(--wheel-size) * .41);
+  --label-w: calc(var(--wheel-size) * .155);
+  --label-h: calc(var(--wheel-size) * .19);
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;}
+html{scroll-padding-top:env(safe-area-inset-top,0px);}
+body{
+  margin:0; min-height:100%; color:var(--text); background:var(--bg);
+  background-image:radial-gradient(circle at 50% 0%, rgba(90,105,140,.16), transparent 34rem),
+                    radial-gradient(circle at 8% 85%, rgba(60,120,125,.09), transparent 26rem);
+  font-family:"Space Grotesk", system-ui, sans-serif;
+}
+body::before{
+  content:""; position:fixed; inset:0; pointer-events:none; opacity:.12;
+  background-image:linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+  background-size:42px 42px;
+}
+.page{ width:min(1180px, 94vw); margin:auto; padding:56px 0 40px; position:relative; }
+.hero{ text-align:center; margin-bottom:38px; }
+.eyebrow, .reflection-label{
+  font-family:"DM Mono", monospace; letter-spacing:.16em; font-size:.72rem; color:#c5c8ce;
+}
+.hero h1{ margin:10px 0; font-size:clamp(2.1rem, 5vw, 4.2rem); line-height:.97; letter-spacing:-.05em; }
+.subtitle{ max-width:640px; margin:auto; color:var(--muted); line-height:1.6; }
+
+.wheel-wrap{ display:grid; place-items:center; padding:6px 0 26px; }
+.wheel{
+  width:var(--wheel-size); height:var(--wheel-size); position:relative; border-radius:50%;
+  border:5px solid #11151b; background:#111;
+  box-shadow:0 0 0 1px rgba(255,255,255,.28), 0 25px 80px rgba(0,0,0,.55);
+  isolation:isolate;
+}
+.slice{ position:absolute; inset:0; z-index:1; cursor:pointer; transition:filter .15s ease; }
+.slice::after{ content:""; position:absolute; inset:0; border:1px solid rgba(0,0,0,.3); pointer-events:none; }
+.slice:hover, .slice:focus-visible{ filter:brightness(1.12); outline:none; }
+.slice.is-active{ filter:brightness(1.18); }
+.slice.is-active::after{ border:1px solid rgba(255,255,255,.55); box-shadow:inset 0 0 0 3px rgba(255,255,255,.4); }
+.slice-1{ background:var(--c1); clip-path:polygon(50% 50%, 30.9% 0, 69.1% 0); }
+.slice-2{ background:var(--c2); clip-path:polygon(50% 50%, 69.1% 0, 100% 30.9%); }
+.slice-3{ background:var(--c3); clip-path:polygon(50% 50%, 100% 30.9%, 100% 69.1%); }
+.slice-4{ background:var(--c4); clip-path:polygon(50% 50%, 100% 69.1%, 69.1% 100%); }
+.slice-5{ background:var(--c5); clip-path:polygon(50% 50%, 69.1% 100%, 30.9% 100%); }
+.slice-6{ background:var(--c6); clip-path:polygon(50% 50%, 30.9% 100%, 0 69.1%); }
+.slice-7{ background:var(--c7); clip-path:polygon(50% 50%, 0 69.1%, 0 30.9%); }
+.slice-8{ background:var(--c8); clip-path:polygon(50% 50%, 0 30.9%, 30.9% 0); }
+
+.arm{ position:absolute; top:50%; left:50%; width:0; height:0; z-index:2; pointer-events:none; }
+.arm > .content{
+  position:absolute; top:0; left:0; width:var(--label-w); margin-left:calc(var(--label-w) / -2);
+  max-height:var(--label-h); overflow:hidden; transform-origin:50% 50%;
+  text-align:center; color:#101318; display:flex; flex-direction:column; align-items:center;
+}
+.arm .icon{ width:calc(var(--wheel-size) * .045); height:calc(var(--wheel-size) * .045); margin-bottom:calc(var(--wheel-size)*.007); }
+.arm .number{
+  font-family:"DM Mono", monospace; font-weight:500; line-height:1;
+  font-size:calc(var(--wheel-size) * .019); border:1px solid rgba(0,0,0,.45);
+  padding:2px 6px; border-radius:100px; margin-bottom:calc(var(--wheel-size)*.008);
+}
+.arm .slice-title{
+  font-size:calc(var(--wheel-size) * .0265); line-height:1.14; margin:0; letter-spacing:-.01em;
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+}
+.arm .slice-text{
+  font-size:calc(var(--wheel-size) * .0195); line-height:1.25; margin:calc(var(--wheel-size)*.007) 0 0;
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; opacity:.92;
+}
+.arm-1{ transform:rotate(0deg)    translateY(calc(-1 * var(--radius))); }
+.arm-2{ transform:rotate(45deg)   translateY(calc(-1 * var(--radius))); }
+.arm-3{ transform:rotate(90deg)   translateY(calc(-1 * var(--radius))); }
+.arm-4{ transform:rotate(135deg)  translateY(calc(-1 * var(--radius))); }
+.arm-5{ transform:rotate(180deg)  translateY(calc(-1 * var(--radius))); }
+.arm-6{ transform:rotate(225deg)  translateY(calc(-1 * var(--radius))); }
+.arm-7{ transform:rotate(270deg)  translateY(calc(-1 * var(--radius))); }
+.arm-8{ transform:rotate(315deg)  translateY(calc(-1 * var(--radius))); }
+.arm-1 > .content{ transform:rotate(0deg); }
+.arm-2 > .content{ transform:rotate(-45deg); }
+.arm-3 > .content{ transform:rotate(-90deg); }
+.arm-4 > .content{ transform:rotate(-135deg); }
+.arm-5 > .content{ transform:rotate(-180deg); }
+.arm-6 > .content{ transform:rotate(-225deg); }
+.arm-7 > .content{ transform:rotate(-270deg); }
+.arm-8 > .content{ transform:rotate(-315deg); }
+
+.icon{ width:clamp(26px, 4.4vmin, 38px); height:clamp(26px, 4.4vmin, 38px); margin-bottom:6px; }
+.icon svg{ width:100%; height:100%; display:block; }
+
+/* CENTER */
+.wheel-center{
+  position:absolute; z-index:10; width:29%; aspect-ratio:1; top:50%; left:50%;
+  transform:translate(-50%,-50%); border-radius:50%;
+  background:radial-gradient(circle at 50% 35%, #fffdf7, #e9e2d3);
+  color:#111318; border:clamp(5px,.7vmin,9px) solid #11151b;
+  box-shadow:0 0 0 1px rgba(255,255,255,.55), 0 8px 25px rgba(0,0,0,.3);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:6%;
+}
+.center-icon{ width:clamp(28px,5.5vmin,48px); height:clamp(28px,5.5vmin,48px); margin-bottom:6px; }
+.center-icon svg{ width:100%; height:100%; display:block; }
+.wheel-center h2{ font-size:clamp(.56rem,1.5vmin,1.04rem); line-height:1.14; letter-spacing:-.02em; margin:0; }
+.center-line{ width:32%; height:2px; background:#22262d; margin:8px 0; opacity:.6; }
+.wheel-center p{ font-family:"DM Mono", monospace; font-size:clamp(.34rem,.7vmin,.53rem); margin:0; letter-spacing:.07em; opacity:.7; }
+
+/* DETAIL PANEL */
+.detail-panel{
+  max-width:720px; margin:0 auto 40px; min-height:132px;
+  border-radius:16px; border:1px solid rgba(255,255,255,.12);
+  background:linear-gradient(145deg, rgba(255,255,255,.055), rgba(255,255,255,.015));
+  box-shadow:0 16px 46px rgba(0,0,0,.25); padding:26px 28px;
+  --panel-accent:#e4b84c;
+}
+.dp-inner{ display:flex; flex-direction:column; justify-content:center; min-height:80px; }
+.dp-empty{ text-align:center; color:var(--muted); }
+.dp-empty p:last-child{ margin:8px 0 0; font-size:.95rem; }
+.dp-head{ display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+.dp-head .number{
+  font-family:"DM Mono", monospace; font-size:.72rem; border:1px solid var(--panel-accent);
+  color:var(--panel-accent); padding:2px 8px; border-radius:100px;
+}
+.dp-head .tag{
+  font-family:"DM Mono", monospace; font-size:.62rem; letter-spacing:.03em;
+  background:rgba(255,255,255,.09); border:1px solid rgba(255,255,255,.18);
+  color:#d8dade; padding:3px 8px; border-radius:4px;
+}
+#dpTitle{ margin:0 0 6px; font-size:clamp(1.15rem,2.2vw,1.5rem); letter-spacing:-.02em; color:var(--panel-accent); }
+.dp-lede{ margin:0 0 10px; font-weight:600; color:var(--text); }
+#dpBody{ margin:0; color:#c7cad0; line-height:1.65; font-size:.98rem; }
+
+/* LEGEND */
+.legend{
+  display:flex; justify-content:center; gap:26px; flex-wrap:wrap; color:#b9bdc5;
+  font-family:"DM Mono", monospace; font-size:.7rem; letter-spacing:.03em; margin:0 auto 42px;
+}
+.legend > div{ display:flex; align-items:center; gap:8px; }
+.dot{ width:10px; height:10px; border-radius:50%; display:inline-block; }
+.dot.early{ background:var(--c2); }
+.dot.revolutions{ background:var(--c5); }
+
+/* REFLECTION */
+.reflection{
+  max-width:960px; margin:0 auto; padding:clamp(24px,5vw,48px);
+  border:1px solid rgba(255,255,255,.16); border-radius:20px;
+  background:linear-gradient(145deg, rgba(255,255,255,.06), rgba(255,255,255,.016));
+  box-shadow:0 20px 60px rgba(0,0,0,.25);
+}
+.reflection h2{ margin:12px 0 18px; max-width:820px; font-size:clamp(1.1rem,2.4vw,1.8rem); line-height:1.26; letter-spacing:-.025em; }
+.reflection-answer{ color:#c3c6cc; font-size:clamp(.9rem,1.4vw,1.02rem); line-height:1.8; max-width:860px; margin:0; }
+.reflection-answer strong{ color:#fff; }
+
+footer{
+  display:flex; justify-content:space-between; gap:20px; color:#676d77;
+  font-family:"DM Mono", monospace; font-size:.62rem; letter-spacing:.07em; padding:28px 4px 0;
+}
+
+@media (max-width:700px){
+  .page{ padding-top:32px; }
+  .wheel-center p{ display:none; }
+  footer{ flex-direction:column; text-align:center; gap:6px; }
+}
+@media (prefers-reduced-motion: reduce){ html{ scroll-behavior:auto; } }
+</style>
+</head>
+<body>
+<main class="page">
+
+  <header class="hero">
+    <p class="eyebrow">SCIENCE · HISTORY · DISCOVERY</p>
+    <h1>Digital Wheel of Knowledge</h1>
+    <p class="subtitle">How early scientific knowledge developed into new ways of understanding the world.</p>
+  </header>
+
+  <section class="wheel-wrap" aria-label="Wheel of Knowledge">
+    <div class="wheel">
+      <div class="slice slice-1" role="button" tabindex="0" data-idx="1" aria-label="Maya Civilization — show details"></div>
+      <div class="slice slice-2" role="button" tabindex="0" data-idx="2" aria-label="Aztec Civilization — show details"></div>
+      <div class="slice slice-3" role="button" tabindex="0" data-idx="3" aria-label="Ancient China — show details"></div>
+      <div class="slice slice-4" role="button" tabindex="0" data-idx="4" aria-label="Indus Valley — show details"></div>
+      <div class="slice slice-5" role="button" tabindex="0" data-idx="5" aria-label="Copernican Revolution — show details"></div>
+      <div class="slice slice-6" role="button" tabindex="0" data-idx="6" aria-label="Information Revolution — show details"></div>
+      <div class="slice slice-7" role="button" tabindex="0" data-idx="7" aria-label="Freudian Revolution — show details"></div>
+      <div class="slice slice-8" role="button" tabindex="0" data-idx="8" aria-label="Darwinian Revolution — show details"></div>
+
+      <div class="arm arm-1"><div class="content">
+        <div class="icon" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="#101318" stroke-width="2.4"><circle cx="24" cy="24" r="14"/><path d="M24 4v6M24 38v6M4 24h6M38 24h6M9.5 9.5l4.2 4.2M34.3 34.3l4.2 4.2M9.5 38.5l4.2-4.2M34.3 13.7l4.2-4.2" stroke-linecap="round"/></svg></div>
+        <span class="number">01</span>
+        <h2 class="slice-title">Maya Civilization</h2>
+      </div></div>
+
+      <div class="arm arm-2"><div class="content">
+        <div class="icon" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="#101318" stroke-width="2.4"><path d="M6 30h36M6 22h36M6 38h36" stroke-linecap="round"/><path d="M12 22c0-6 4-10 4-10s4 4 4 10M28 22c0-6 4-10 4-10s4 4 4 10" stroke-linecap="round"/></svg></div>
+        <span class="number">02</span>
+        <h2 class="slice-title">Aztec Civilization</h2>
+      </div></div>
+
+      <div class="arm arm-3"><div class="content">
+        <div class="icon" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="#101318" stroke-width="2.4"><circle cx="24" cy="24" r="16"/><path d="M24 8v6M24 34v6M24 24l8-4" stroke-linecap="round"/><circle cx="24" cy="24" r="2.4" fill="#101318" stroke="none"/></svg></div>
+        <span class="number">03</span>
+        <h2 class="slice-title">Ancient China</h2>
+      </div></div>
+
+      <div class="arm arm-4"><div class="content">
+        <div class="icon" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="#101318" stroke-width="2.4"><rect x="7" y="10" width="34" height="28" rx="1.5"/><path d="M7 20h34M7 29h34M17 10v28M31 10v28" stroke-linecap="round"/></svg></div>
+        <span class="number">04</span>
+        <h2 class="slice-title">Indus Valley</h2>
+      </div></div>
+
+      <div class="arm arm-5"><div class="content">
+        <div class="icon" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="#101318" stroke-width="2.4"><circle cx="24" cy="24" r="6"/><circle cx="24" cy="24" r="17" stroke-dasharray="2 4"/><circle cx="24" cy="7" r="2.2" fill="#101318" stroke="none"/></svg></div>
+        <span class="number">05</span>
+        <h2 class="slice-title">Copernican Revolution</h2>
+      </div></div>
+
+      <div class="arm arm-6"><div class="content">
+        <div class="icon" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="#101318" stroke-width="2.4"><rect x="17" y="17" width="14" height="14" rx="1.5"/><path d="M24 6v11M24 31v11M6 24h11M31 24h11M11 11l6 6M31 31l6 6M11 37l6-6M31 17l6-6" stroke-linecap="round"/></svg></div>
+        <span class="number">06</span>
+        <h2 class="slice-title">Information Revolution</h2>
+      </div></div>
+
+      <div class="arm arm-7"><div class="content">
+        <div class="icon" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="#101318" stroke-width="2.4"><path d="M24 8c-8 0-12 6-12 12 0 5 3 7 3 11 0 3 2 5 5 5h8c3 0 5-2 5-5 0-4 3-6 3-11 0-6-4-12-12-12Z"/><path d="M20 32v4a4 4 0 0 0 8 0v-4M19 18c2-2 5-2 5 1M29 18c-2-2-5-2-5 1" stroke-linecap="round"/></svg></div>
+        <span class="number">07</span>
+        <h2 class="slice-title">Freudian Revolution</h2>
+      </div></div>
+
+      <div class="arm arm-8"><div class="content">
+        <div class="icon" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="#101318" stroke-width="2.4"><path d="M24 6v20M24 26c-6 0-10 4-10 9M24 26c6 0 10 4 10 9M24 16c-4.5 0-7-3-7-7M24 16c4.5 0 7-3 7-7" stroke-linecap="round"/><circle cx="14" cy="37" r="2.4" fill="#101318" stroke="none"/><circle cx="34" cy="37" r="2.4" fill="#101318" stroke="none"/></svg></div>
+        <span class="number">08</span>
+        <h2 class="slice-title">Darwinian Revolution</h2>
+      </div></div>
+
+      <div class="wheel-center">
+        <div class="center-icon" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="#111318" stroke-width="2.4"><path d="M24 6a12 12 0 0 0-7 21.7c1.3 1 2 2.5 2 4.3v1h10v-1c0-1.8.7-3.3 2-4.3A12 12 0 0 0 24 6Z"/><path d="M20 38h8M21.5 42h5" stroke-linecap="round"/></svg></div>
+        <h2>KNOWLEDGE CHANGES HOW HUMANS UNDERSTAND THE WORLD.</h2>
+        <div class="center-line"></div>
+        <p>DISCOVER · QUESTION · UNDERSTAND</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="detail-panel" id="detailPanel" aria-live="polite">
+    <div class="dp-inner">
+      <div class="dp-empty" id="dpEmpty">
+        <p class="eyebrow">SELECT A SECTION</p>
+        <p>Hover or tap any wedge of the wheel to read its full story here.</p>
+      </div>
+      <div class="dp-content" id="dpContent" hidden>
+        <div class="dp-head">
+          <span class="number" id="dpNumber"></span>
+          <span class="tag" id="dpTag"></span>
+        </div>
+        <h3 id="dpTitle"></h3>
+        <p class="dp-lede" id="dpLede"></p>
+        <p id="dpBody"></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="legend">
+    <div><span class="dot early"></span> Cradles of Early Sciences</div>
+    <div><span class="dot revolutions"></span> Intellectual Revolutions</div>
+  </section>
+
+  
+
+  <footer>
+    <span>WHEEL OF KNOWLEDGE</span>
+    <span>Early Sciences → Intellectual Revolutions</span>
+  </footer>
+</main>
+<script>
+(function(){
+  var DATA = {
+    1: { title:"Maya Civilization", tag:"Mesoamerica", lede:"Astronomy and calendars",
+         body:"Maya astronomers tracked the cycles of the sun, moon and Venus with remarkable precision, feeding a calendar system so accurate that some of its cycles still line up with modern astronomical calculations.",
+         accent:"var(--c1)" },
+    2: { title:"Aztec Civilization", tag:"Mesoamerica", lede:"Chinampas farming",
+         body:"The Aztecs built chinampas — narrow artificial islands woven from lake mud, reeds and stakes — turning shallow lakebeds around Tenochtitlan into some of the most productive farmland in the pre-industrial world.",
+         accent:"var(--c2)" },
+    3: { title:"Ancient China", tag:"Asia", lede:"Paper & the compass",
+         body:"The invention of paper transformed how knowledge was recorded and shared, while the magnetic compass gave sailors a reliable way to navigate open water, reshaping trade and exploration across Asia.",
+         accent:"var(--c3)" },
+    4: { title:"Indus Valley", tag:"South Asia", lede:"Planned cities",
+         body:"Cities like Mohenjo-daro were laid out on precise grids with covered drains under nearly every street, alongside a standardized system of weights and measures used across the entire civilization.",
+         accent:"var(--c4)" },
+    5: { title:"Copernican Revolution", tag:"Intellectual Revolution", lede:"A sun-centered system",
+         body:"Nicolaus Copernicus proposed that the Sun, not Earth, sits at the center of the planetary system — a heliocentric model that upended centuries of assumption and opened the door to modern astronomy.",
+         accent:"var(--c5)" },
+    6: { title:"Information Revolution", tag:"Intellectual Revolution", lede:"Digital networks",
+         body:"The rise of computers and digital networks changed how information is stored, processed, shared and accessed, compressing the time it takes an idea to travel from one mind to millions.",
+         accent:"var(--c6)" },
+    7: { title:"Freudian Revolution", tag:"Intellectual Revolution", lede:"The unconscious mind",
+         body:"Sigmund Freud argued that unconscious processes, early experiences and inner conflict quietly shape behavior, introducing a way of examining the mind that still echoes through psychology today.",
+         accent:"var(--c7)" },
+    8: { title:"Darwinian Revolution", tag:"Intellectual Revolution", lede:"Evolution by natural selection",
+         body:"Charles Darwin's theory of evolution by natural selection explained how populations change over generations and how the vast diversity of life on Earth could arise from common ancestry.",
+         accent:"var(--c8)" }
+  };
+
+  var slices = document.querySelectorAll(".slice");
+  var panel = document.getElementById("detailPanel");
+  var dpEmpty = document.getElementById("dpEmpty");
+  var dpContent = document.getElementById("dpContent");
+  var dpNumber = document.getElementById("dpNumber");
+  var dpTag = document.getElementById("dpTag");
+  var dpTitle = document.getElementById("dpTitle");
+  var dpLede = document.getElementById("dpLede");
+  var dpBody = document.getElementById("dpBody");
+
+  function show(idx){
+    var d = DATA[idx];
+    if(!d) return;
+    slices.forEach(function(s){ s.classList.toggle("is-active", s.getAttribute("data-idx") === String(idx)); });
+    panel.style.setProperty("--panel-accent", d.accent);
+    dpNumber.textContent = (idx < 10 ? "0" + idx : idx);
+    dpTag.textContent = d.tag;
+    dpTitle.textContent = d.title;
+    dpLede.textContent = d.lede;
+    dpBody.textContent = d.body;
+    dpEmpty.hidden = true;
+    dpContent.hidden = false;
+  }
+
+  slices.forEach(function(s){
+    s.addEventListener("click", function(){ show(s.getAttribute("data-idx")); });
+    s.addEventListener("mouseenter", function(){ show(s.getAttribute("data-idx")); });
+    s.addEventListener("focus", function(){ show(s.getAttribute("data-idx")); });
+    s.addEventListener("keydown", function(e){
+      if(e.key === "Enter" || e.key === " "){ e.preventDefault(); show(s.getAttribute("data-idx")); }
+    });
+  });
+})();
+</script>
+</body>
+</html>
